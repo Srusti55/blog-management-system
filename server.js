@@ -1,49 +1,56 @@
 const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
 
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
+// Serve HTML, CSS and JS files
+app.use(express.static(path.join(__dirname)));
 
+// Store blogs in JavaScript array
 let blogs = [];
 
-
-app.get("/", (req, res) => {
-    res.send("THIS IS MY NEW SERVER");
-});
-
-
+// Add Blog API
 app.post("/add-blog", (req, res) => {
+    const { title, author, description } = req.body;
+
+    if (!title || !author || !description) {
+        return res.status(400).json({
+            message: "All fields are required"
+        });
+    }
 
     const blog = {
-        title: req.body.title,
-        author: req.body.author,
-        description: req.body.description
+        id: blogs.length + 1,
+        title,
+        author,
+        description
     };
 
     blogs.push(blog);
 
-    res.json({
+    res.status(201).json({
         message: "Blog Added Successfully",
-        blog: blog
+        blog
     });
-
 });
 
-
+// Get All Blogs API
 app.get("/blogs", (req, res) => {
     res.json(blogs);
 });
 
- app.get("/test", (req, res) => {
+// Test Route
+app.get("/test", (req, res) => {
     res.send("Test route is working");
 });
 
-console.log("Server file loaded");
-
+// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
