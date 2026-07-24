@@ -45,6 +45,29 @@ app.get("/blogs", (req, res) => {
     res.json(blogs);
 });
 
+// Update Blog API (Day 8)
+app.put("/update-blog/:id", (req, res) => {
+
+    const id = parseInt(req.params.id);
+
+    const blog = blogs.find(blog => blog.id === id);
+
+    if (!blog) {
+        return res.status(404).json({
+            message: "Blog not found"
+        });
+    }
+
+    blog.title = req.body.title;
+    blog.author = req.body.author;
+    blog.description = req.body.description;
+
+    res.json({
+        message: "Blog Updated Successfully",
+        blog
+    });
+});
+
 // Test Route
 app.get("/test", (req, res) => {
     res.send("Test route is working");
