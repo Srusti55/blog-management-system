@@ -14,30 +14,74 @@ form.addEventListener("submit", function (event) {
     }
 });
 
-// Fetch and Display Blogs
-fetch("http://localhost:3000/blogs")
-    .then((response) => response.json())
-    .then((blogs) => {
-        const blogList = document.getElementById("blogList");
+// Function to Fetch and Display Blogs
+function loadBlogs() {
 
-        if (blogs.length === 0) {
-            blogList.innerHTML = "<p>No blogs available.</p>";
-            return;
-        }
+    fetch("http://localhost:3000/blogs")
+        .then((response) => response.json())
+        .then((blogs) => {
 
-        blogs.forEach((blog) => {
-            const blogCard = document.createElement("div");
+            const blogList = document.getElementById("blogList");
+            blogList.innerHTML = "";
 
-            blogCard.innerHTML = `
-                <h3>${blog.title}</h3>
-                <p><strong>Author:</strong> ${blog.author}</p>
-                <p>${blog.description}</p>
-                <hr>
-            `;
+            if (blogs.length === 0) {
+                blogList.innerHTML = "<p>No blogs available.</p>";
+                return;
+            }
 
-            blogList.appendChild(blogCard);
+            blogs.forEach((blog) => {
+
+                const blogCard = document.createElement("div");
+
+                blogCard.innerHTML = `
+                    <h3>${blog.title}</h3>
+                    <p><strong>Author:</strong> ${blog.author}</p>
+                    <p>${blog.description}</p>
+
+                    <button onclick="deleteBlog(${blog.id})">
+                        Delete
+                    </button>
+
+                    <hr>
+                `;
+
+                blogList.appendChild(blogCard);
+
+            });
+
+        })
+        .catch((error) => {
+            console.error("Error fetching blogs:", error);
         });
+
+}
+
+// Function to Delete Blog
+function deleteBlog(id) {
+
+    const confirmDelete = confirm("Are you sure you want to delete this blog?");
+
+    if (!confirmDelete) {
+        return;
+    }
+
+    fetch(`http://localhost:3000/delete-blog/${id}`, {
+        method: "DELETE"
     })
-    .catch((error) => {
-        console.error("Error fetching blogs:", error);
-    });
+        .then((response) => response.json())
+        .then((data) => {
+
+            alert(data.message);
+
+            // Reload blogs
+            loadBlogs();
+
+        })
+        .catch((error) => {
+            console.error("Error deleting blog:", error);
+        });
+
+}
+
+// Load blogs when page opens
+loadBlogs();
